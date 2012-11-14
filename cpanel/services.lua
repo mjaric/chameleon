@@ -1,5 +1,4 @@
 local cjson = require "cjson";
-
 local redis = require "resty.redis";
 
 ngx.header.content_type = 'application/json';
