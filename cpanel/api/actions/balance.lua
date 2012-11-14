@@ -1,4 +1,3 @@
-require "cjson";
 local redis = require "resty.redis";
 
 local config = {
