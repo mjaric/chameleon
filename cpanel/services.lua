@@ -22,7 +22,6 @@ if post_args then
 		end
 	end
 end
-ngx.log(ngx.INFO, "\n[" .. method .. "] ".. ngx.var.uri .. "\nPARAMS:\n"  .. tostring(cjson.encode(params)));
 
 local response = {}
 
