@@ -1,0 +1,64 @@
+<h2>Auto balance Rule</h2>
+<p>
+	Below for is used to set how generaly traffic is balanced. Option "Beta need to be under: ..."  sets in percents what is trafic maximum on BETA node.
+</p>
+<form ng-submit="saveAutoBalance()">
+	<dl>
+		<dt>Master/Beta visits</dt>
+	    <dd>
+	    	<span>{{loadBalance.master_user_count}}</span> : <span>{{loadBalance.beta_user_count}}</span> = <span>{{loadBalance.current_balance }}%</span>
+	    </dd>	
+	    <dt>Beta need to be under:</dt>
+	    <dd>
+	    	<input type="range" min="0" max="100" step="1" ng-model="loadBalance.keep_beta_under">
+	    	<span>{{loadBalance.keep_beta_under}}%</span>
+	    </dd>
+	    <dt>Beta Status: </dt>
+	    <dd>
+	    	<input type="radio" name="is_beta_off" id="beta_on" ng-model="loadBalance.is_beta_off" value="on">
+	    	<label for="beta_on">ON</label>
+	    	<input type="radio" name="is_beta_off" id="beta_off" ng-model="loadBalance.is_beta_off" value="off">
+	    	<label for="beta_off">OFF</label>
+	    </dd>
+	</dl>
+	<div class="clear">
+		<button type="submit">Save</button>
+	</div>
+</form>
+
+
+
+<hr />
+<h3>URL based rules</h3>
+<p>
+	Use form below to add or edit specif configuration related to URL typed in browser. If you want some url to be bound to specific A/B node (MASTER or BETA) please chose one from dropdown list.
+</p>
+<form ng-submit="onUrlRuleSubmit()">
+	<input type="text" class="span5" placeholder="Absolute URL" ng-model="url_rule.url">
+	<select ng-model="url_rule.value" plaseholder="Please select node">
+		<option value="master">Master website</option>
+		<option value="beta">Beta website</option>
+	</select>
+	<button type="submit">Save</button>
+</form>
+<table>
+	<thead>
+		<tr>
+			<th class="span5">Url</th>
+			<th>A/B node</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	
+	<tbody>
+		<tr ng-repeat="(key, value) in url_rules">
+			<td class="span5">{{key}}</td>
+			<td>{{value}}</td>
+			<td>
+				<a ng-click="onEditUrlRule(key, value)">Edit</a>
+				<a ng-click="onUrlDelete(key)">Delete</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+

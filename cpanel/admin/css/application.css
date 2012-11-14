@@ -1,0 +1,45 @@
+.container {
+	width: 640px;
+	margin: 0 auto;
+}
+
+.container form {
+	padding: 10px;
+	border: 1px solid #ccc;
+	background-color: #efefef;
+}
+
+.container .span5 {
+	width: 45%;
+}
+.container dl dt, 
+.container dl dd {
+	float: left;
+	padding: 3px;
+}
+
+.container dl dt {
+	float: left;
+	width: 150px;
+	clear: left;
+} 
+
+
+div.clear {
+	display: block;
+	clear: both;
+}
+
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table td, table th {
+	padding: 2px;
+}
+.container table {
+	width: 100%;
+	padding: 10px;
+}
