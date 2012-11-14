@@ -3,11 +3,7 @@ local redis = require "resty.redis";
 
 ngx.header.content_type = 'application/json';
 local function convertToRedis(val)
-	if type(val) == "boolean" then
-		return (a and "1" or "0" );
-	else
-		return tostring(val);
-	end
+	return tostring(val);
 end
 
 local method = ngx.req.get_method();

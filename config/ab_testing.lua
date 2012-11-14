@@ -67,8 +67,9 @@ if not res then
     ngx.log(ngx.ERR, "failed to get ab_url_tests hash: ", err);
     return;
 end
-ngx.log(ngx.INFO, "failed to get ab_url_tests hash: ", res);
-if res == "1" then
+
+if res == "off" then
+    ngx.log(ngx.WARN, "Please note that A/B testing is : ", res);
     return;
 end
 
