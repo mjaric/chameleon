@@ -12,10 +12,7 @@ function protect_table (tbl)
 
 end 
 
-cfg = {    
-    REDIS_HOST_NAME = "stream1.qa.towncar.us",
-    BETA_HOST_NAME = "www2.qa.groundlink.us",
-    MASTER_HOST_NAME = "www.qa.groundlink.us",
+local cfg = {
 
     key_name = {
         LOAD_BALANCE = "groundlink_ab_test",
@@ -27,6 +24,15 @@ cfg = {
 
 
 };
+if ngx.var.staging == "production" then
+    cfg["REDIS_HOST_NAME"] = "10.56.85.22";
+    cfg["BETA_HOST_NAME"] = "preview.groundlink.com";
+    cfg["MASTER_HOST_NAME"] = "www.groundlink.com";
+else
+    cfg["REDIS_HOST_NAME"] = "stream1.qa.towncar.us";
+    cfg["BETA_HOST_NAME"] = "www2.qa.groundlink.us";
+    cfg["MASTER_HOST_NAME"] = "www.qa.groundlink.us";
+end
 
 cfg = protect_table(cfg)
 
@@ -45,7 +51,7 @@ end
 ngx.log(ngx.INFO, "ROUTEID = ", cookie_value);
 
 function setRouteCookie(backend)
-	local expires = "Thu, 07-Jan-2013 11:27:35 GMT";
+	local expires = os.date("%A, %d-%b-%Y %X GTM", os.time{year=2013, month=1, day=10, hour=0});
 	ngx.header['Set-Cookie']= "ROUTEID=" .. backend .. "; Expires=" .. expires .. "; Path=/" ;
 end
 
@@ -94,8 +100,6 @@ if not cookie_value then
     local lb_status = red:array_to_hash(res);
     local beta_percentage =  lb_status.beta_user_count * 100 / (lb_status.master_user_count + lb_status.beta_user_count);
     local master_percentage = lb_status.master_user_count * 100 / (lb_status.master_user_count + lb_status.beta_user_count);
-
-    ngx.log(ngx.INFO, " [BETA] : [MASTER] = ", beta_percentage ,"% : ", master_percentage ,"%");
 
     if(beta_percentage >= (lb_status.keep_beta_under * 1) ) then
     	res, err = red:hincrby(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, 1);
