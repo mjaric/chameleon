@@ -122,12 +122,15 @@ end
 
 setRouteCookie(cookie_value);
 
+
+red:close();
+
 ngx.var.ab_backend =  cookie_value ;
 if cookie_value == "beta" then
     ngx.var.ab_hostname = cfg.BETA_HOST_NAME;
+    return ngx.redirect("https://" .. cfg.BETA_HOST_NAME .. "/", 302)
 else
     ngx.var.ab_hostname = cfg.MASTER_HOST_NAME;
 end
 
 
-red:close();
