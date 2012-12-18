@@ -1,3 +1,4 @@
+local cfg = require("config");
 local cjson = require "cjson";
 local redis = require "resty.redis";
 
