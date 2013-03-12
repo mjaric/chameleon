@@ -14,6 +14,7 @@
 					return Math.ceil((parseInt(beta_user_count) * 100) / (parseInt(master_user_count) + parseInt(beta_user_count)));
 				} 
 			});
+
 		}
 
 		function urlRulesIndex_callback (data,status, headers, config){
@@ -24,7 +25,10 @@
 		UrlRulesService.index(urlRulesIndex_callback);
 
 		$scope.saveAutoBalance = function(){
-			LoadBalanceService.save($scope.loadBalance, loadBalanceIndex_callback);			
+			LoadBalanceService.save($scope.loadBalance, function(data,status, headers, config){
+				loadBalanceIndex_callback(data,status, headers, config);
+				alert("Done!");
+			});			
 		}
 		
 		$scope.onUrlDelete = function(url){
@@ -47,7 +51,10 @@
 		};
 
 		$scope.startOver = function(){
-			LoadBalanceService.startOver(loadBalanceIndex_callback);
+			LoadBalanceService.startOver(function(data,status, headers, config){
+				loadBalanceIndex_callback(data,status, headers, config);
+				alert("Done!");
+			});
 		}
 		
 	});
