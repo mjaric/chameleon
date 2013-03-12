@@ -115,11 +115,13 @@ red:close();
 
 setRouteCookie(cookie_value);
 
-ngx.var.ab_backend =  cookie_value ;
+
 if cookie_value == redis_config.beta_route_id then
+    ngx.var.ab_backend =  "beta";
     ngx.var.ab_hostname = cfg.BETA_HOST_NAME;
     return ngx.redirect("https://" .. cfg.BETA_HOST_NAME .. "/", 302)
 else
+    ngx.var.ab_backend =  "master";
     ngx.var.ab_hostname = cfg.MASTER_HOST_NAME;
 end
 
