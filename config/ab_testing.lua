@@ -101,12 +101,12 @@ if not cookie_value then
 end
 
 setRouteCookie(cookie_value);
-
-
+res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
+local redis_config = red:array_to_hash(res);
 red:close();
 
 ngx.var.ab_backend =  cookie_value ;
-if cookie_value == cfg.key_name.BETA_ROUTE_ID then
+if cookie_value == redis_config.beta_route_id then
     ngx.var.ab_hostname = cfg.BETA_HOST_NAME;
     return ngx.redirect("https://" .. cfg.BETA_HOST_NAME .. "/", 302)
 else
