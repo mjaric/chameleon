@@ -25,7 +25,8 @@
 	        	var ajax = $http.post(serviceUrl + "/balance", { 
 	        		"is_beta_off": value.is_beta_off,
 	        		"keep_beta_under": value.keep_beta_under,
-	        		"beta_route_id": value.beta_route_id
+	        		"beta_route_id": value.beta_route_id,
+	        		"master_route_id": value.master_route_id
 	        	});
 	        	ajax.success(callback);
 	        	ajax.error(onError);

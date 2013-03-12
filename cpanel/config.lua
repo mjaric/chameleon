@@ -8,6 +8,7 @@ local cfg = {
         BETA_COUNTER = "beta_user_count",
         KEEP_BETA_UNDER = "keep_beta_under",
         BETA_ROUTE_ID = "beta_route_id"
+        MASTER_ROUTE_ID = "master_route_id"
     },
 
     

@@ -21,11 +21,13 @@
 	    	<input type="radio" name="is_beta_off" id="beta_off" ng-model="loadBalance.is_beta_off" value="off">
 	    	<label for="beta_off">OFF</label>
 	    </dd>
+	    <dt>RouteID for master:</dt>
+	    <dd>
+	    	<span><input type='text' id='master_route_id' name="master_route_id" ng-model="loadBalance.master_route_id"></span>
+	    </dd>
 	    <dt>RouteID for beta:</dt>
 	    <dd>
 	    	<span><input type='text' id='beta_route_id' name="beta_route_id" ng-model="loadBalance.beta_route_id"></span>
-	    	<br>
-	    	Change this in order to start over!
 	    </dd>
 	</dl>
 

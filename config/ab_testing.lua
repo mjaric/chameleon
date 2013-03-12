@@ -70,7 +70,8 @@ if not cookie_value then
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_ROUTE_ID, "preview");
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_ROUTE_ID, "beta");
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_ROUTE_ID, "master");
     end
     res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
     if not res then
