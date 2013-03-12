@@ -1,42 +1,5 @@
 local redis = require "resty.redis";
-
-function protect_table (tbl)
-  return setmetatable ({}, 
-    {
-    __index = tbl, 
-    __newindex = function (t, n, v)
-       error ("attempting to change constant " .. 
-             tostring (n) .. " to " .. tostring (v), 2)
-      end
-    })
-
-end 
-
-local cfg = {
-
-    key_name = {
-        LOAD_BALANCE = "groundlink_ab_test",
-        IS_BETA_OFF = "is_beta_off",
-        URL_RULES = "ab_url_tests",
-        MASTER_COUNTER = "master_user_count",
-        BETA_COUNTER = "beta_user_count"
-    }
-
-
-};
-if ngx.var.staging == "production" then
-    cfg["REDIS_HOST_NAME"] = "10.56.85.22";
-    cfg["BETA_HOST_NAME"] = "preview.groundlink.com";
-    cfg["MASTER_HOST_NAME"] = "www.groundlink.com";
-else
-    cfg["REDIS_HOST_NAME"] = "stream1.qa.towncar.us";
-    cfg["BETA_HOST_NAME"] = "www2.qa.groundlink.us";
-    cfg["MASTER_HOST_NAME"] = "www.qa.groundlink.us";
-end
-
-cfg = protect_table(cfg)
-
-
+local cfg = require "cpanel/config";
 
 ngx.var.ab_backend = "master";
 ngx.var.ab_hostname = cfg.MASTER_HOST_NAME;
@@ -51,7 +14,7 @@ end
 ngx.log(ngx.INFO, "ROUTEID = ", cookie_value);
 
 function setRouteCookie(backend)
-	local expires = os.date("%A, %d-%b-%Y %X GTM", os.time{year=2013, month=1, day=10, hour=0});
+	local expires = os.date("%A, %d-%b-%Y %X GMT", os.time{year=2014, month=6, day=10, hour=0});
 	ngx.header['Set-Cookie']= "ROUTEID=" .. backend .. "; Expires=" .. expires .. "; Path=/" ;
 end
 
@@ -66,32 +29,47 @@ if not res then
     return;
 end
 res, err = red:select("2");
-
-
-res, err = red:hget(cfg.key_name.LOAD_BALANCE, cfg.key_name.IS_BETA_OFF)
 if not res then
-    ngx.log(ngx.ERR, "failed to get ab_url_tests hash: ", err);
+    ngx.log(ngx.ERR, "failed to switch database: ", err);
     return;
 end
 
-if res == "off" then
+res, err = red:hget(cfg.key_name.LOAD_BALANCE, cfg.key_name.IS_BETA_OFF)
+if not res then
+    ngx.log(ngx.ERR, "failed to get ab_url_tests hash, we will try to reset it to default 'off': ", err);
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.IS_BETA_OFF, "off")
+
+    res, err = red:hget(cfg.key_name.LOAD_BALANCE, cfg.key_name.IS_BETA_OFF)
+    return;
+end
+
+if not res or res == "off" then
     ngx.log(ngx.WARN, "Please note that A/B testing is : ", res);
     return;
 end
 
-
+local url_test = {}
 res, err = red:hgetall(cfg.key_name.URL_RULES);
-if not res then
-    ngx.log(ngx.ERR, "failed to get ab_url_tests hash: ", err);
-    return;
+if res then
+    url_test = red:array_to_hash(res);
 end
-local url_test = red:array_to_hash(res);
+
 
 if url_test[uri] then
 	cookie_value = url_test[uri];
 end
 
 if not cookie_value then
+    res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
+    if not res then
+        ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
+        return;
+    end
+    if not red or not red["beta_user_count"] then
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "0")
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "0")
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5")
+    end
     res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
     if not res then
         ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
@@ -114,7 +92,7 @@ if not cookie_value then
 	        ngx.log(ngx.ERR, "failed to increment groundlink_ab_test beta_user_count: ", err);
 	        return;
 	    end
-    	cookie_value = "beta";
+    	cookie_value = cfg.BETA_ROUTE_ID;
     end
     
     
@@ -126,7 +104,7 @@ setRouteCookie(cookie_value);
 red:close();
 
 ngx.var.ab_backend =  cookie_value ;
-if cookie_value == "beta" then
+if cookie_value == cfg.BETA_ROUTE_ID then
     ngx.var.ab_hostname = cfg.BETA_HOST_NAME;
     return ngx.redirect("https://" .. cfg.BETA_HOST_NAME .. "/", 302)
 else

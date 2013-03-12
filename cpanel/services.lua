@@ -1,6 +1,5 @@
-local cfg = require("config");
+package.path = "/usr/local/openresty/lualib/cpanel/?.lua;" .. package.path;
 local cjson = require "cjson";
-local redis = require "resty.redis";
 
 ngx.header.content_type = 'application/json';
 local function convertToRedis(val)

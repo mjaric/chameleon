@@ -1,15 +1,7 @@
-local cfg = require("../config");
 local redis = require "resty.redis";
+local cfg = require "cpanel/config";
 
-local config = {
-	root = "groundlink_ab_test",
-	balnce = "keep_beta_under"
-}
-
-local red = redis:new();
-
-
-local function cmd()
+local function redis_connect()
 	local red = redis:new();
 	red:set_timeout(1000);
 	local res, err = red:connect(cfg.REDIS_HOST_NAME, 6379);
@@ -18,6 +10,10 @@ local function cmd()
 	    return;
 	end
 	res, err = red:select("2");
+    if not res then
+        ngx.log(ngx.ERR, "failed to switch database: ", err);
+        return;
+    end
 	return red;
 end
 
@@ -26,18 +22,21 @@ end
 
 local commands =  { }
 function commands.get(params)
-	red = cmd();
+	red = redis_connect();
 	res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
+    if not res then
+        ngx.log(ngx.ERR, "failed to execute 'HGETALL " .. cfg.key_name.LOAD_BALANCE .. "'", err);
+    end
 	res = red:array_to_hash(res);
 	if not res then
-		ngx.log(ngx.ERR, "failed to execute 'HGETALL " .. cfg.key_name.LOAD_BALANCE .. "'", err);
+		ngx.log(ngx.ERR, "failed to execute 'HGETALL " .. cfg.key_name.LOAD_BALANCE .. "', looks like database is not initialized properly", err);
 	end
 	red:close();
 	return res;
 end
 
 function commands.post(params)
-	red = cmd();
+	red = redis_connect();
 	for k,v in pairs(params) do
 		res, err = red:hset(cfg.key_name.LOAD_BALANCE, k, v);
 		if not res then
@@ -47,7 +46,5 @@ function commands.post(params)
 	red:close();
 	return commands.get({});
 end
-
-
 
 return commands;
