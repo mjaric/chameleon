@@ -65,10 +65,11 @@ if not cookie_value then
         ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
         return;
     end
-    if not red or not red["beta_user_count"] then
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "0")
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "0")
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5")
+    if not red or not red[cfg.key_name.BETA_ROUTE_ID] then
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
+        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_ROUTE_ID, "preview");
     end
     res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
     if not res then

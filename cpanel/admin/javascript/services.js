@@ -24,11 +24,21 @@
 	        save: function(value, callback) {
 	        	var ajax = $http.post(serviceUrl + "/balance", { 
 	        		"is_beta_off": value.is_beta_off,
-	        		"keep_beta_under": value.keep_beta_under
+	        		"keep_beta_under": value.keep_beta_under,
+	        		"beta_route_id": value.beta_route_id
 	        	});
 	        	ajax.success(callback);
 	        	ajax.error(onError);
 	        	
+	        },
+
+	        startOver: function(callback){
+	        	var ajax = $http.post(serviceUrl + "/balance", { 
+	        		"master_user_count": 1,
+	        		"beta_user_count": 1
+	        	});
+	        	ajax.success(callback);
+	        	ajax.error(onError);
 	        }
     	};
 

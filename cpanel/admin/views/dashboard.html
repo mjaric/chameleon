@@ -6,7 +6,8 @@
 	<dl>
 		<dt>Master/Beta visits</dt>
 	    <dd>
-	    	<span>{{loadBalance.master_user_count}}</span> : <span>{{loadBalance.beta_user_count}}</span> = <span>{{loadBalance.current_balance }}%</span>
+	    	<span>{{loadBalance.master_user_count}}</span> : <span>{{loadBalance.beta_user_count}}</span> = <span>{{loadBalance.current_balance }}%</span> 
+	    	<span><a href="javascript:void(0)" ng-click="startOver()">Start Over</a></span>
 	    </dd>	
 	    <dt>Beta need to be under:</dt>
 	    <dd>
@@ -20,7 +21,14 @@
 	    	<input type="radio" name="is_beta_off" id="beta_off" ng-model="loadBalance.is_beta_off" value="off">
 	    	<label for="beta_off">OFF</label>
 	    </dd>
+	    <dt>RouteID for beta:</dt>
+	    <dd>
+	    	<span><input type='text' id='beta_route_id' name="beta_route_id" ng-model="loadBalance.beta_route_id"></span>
+	    	<br>
+	    	Change this in order to start over!
+	    </dd>
 	</dl>
+
 	<div class="clear">
 		<button type="submit">Save</button>
 	</div>

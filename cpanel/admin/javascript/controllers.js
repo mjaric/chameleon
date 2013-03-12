@@ -6,7 +6,6 @@
 		$scope.url_rule = {};
 		$scope.url_rules = {};
 		$scope.loadBalance = {};
-		
 
 		function loadBalanceIndex_callback (data,status, headers, config){
 			$scope.loadBalance = data.response;
@@ -46,6 +45,10 @@
 			});
 			
 		};
+
+		$scope.startOver = function(){
+			LoadBalanceService.startOver(loadBalanceIndex_callback);
+		}
 		
 	});
 
