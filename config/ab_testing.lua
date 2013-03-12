@@ -94,7 +94,7 @@ if not cookie_value then
 	        ngx.log(ngx.ERR, "failed to increment groundlink_ab_test beta_user_count: ", err);
 	        return;
 	    end
-    	cookie_value = cfg.BETA_ROUTE_ID;
+    	cookie_value = lb_status.beta_route_id;
     end
     
     
