@@ -106,7 +106,7 @@ setRouteCookie(cookie_value);
 red:close();
 
 ngx.var.ab_backend =  cookie_value ;
-if cookie_value == cfg.BETA_ROUTE_ID then
+if cookie_value == cfg.key_name.BETA_ROUTE_ID then
     ngx.var.ab_hostname = cfg.BETA_HOST_NAME;
     return ngx.redirect("https://" .. cfg.BETA_HOST_NAME .. "/", 302)
 else
