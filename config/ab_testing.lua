@@ -65,7 +65,7 @@ if not res then
     return;
 end
 local temp = red:array_to_hash(res);
-if not temp or not temp[cfg.key_name.OLD_ROUTE_GOES_TO_MASTER] then
+if not temp or not temp.old_route_goes_to_master then
     red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
     red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
     red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
@@ -80,8 +80,8 @@ if not res then
 end
 local lb_status = red:array_to_hash(res);
 
-if lb_status.old_route_goes_to_master ~= "true" then
-    cookie_value = nil
+if lb_status.old_route_goes_to_master ~= "true" and cookie_value ~= lb_status.beta_route_id then
+    cookie_value = nil;
 end
 
 if not cookie_value then

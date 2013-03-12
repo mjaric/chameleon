@@ -29,6 +29,13 @@
 	    <dd>
 	    	<span><input type='text' id='beta_route_id' name="beta_route_id" ng-model="loadBalance.beta_route_id"></span>
 	    </dd>
+	    <dt>Does old route IDs goes to MASTER:</dt>
+	    <dd>
+	    	<input type="radio" name="old_route_goes_to_master" id="old_route_goes_to_master_yes" ng-model="loadBalance.old_route_goes_to_master" value="true">
+	    	<label for="beta_on">YES</label>
+	    	<input type="radio" name="old_route_goes_to_master" id="old_route_goes_to_master_no" ng-model="loadBalance.old_route_goes_to_master" value="false">
+	    	<label for="beta_off">NO</label>
+	    </dd>
 	</dl>
 
 	<div class="clear">
