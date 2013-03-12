@@ -9,6 +9,7 @@ local cfg = {
         KEEP_BETA_UNDER = "keep_beta_under",
         BETA_ROUTE_ID = "beta_route_id"
         MASTER_ROUTE_ID = "master_route_id"
+        OLD_ROUTE_GOES_TO_MASTER = "old_route_goes_to_master"
     },
 
     

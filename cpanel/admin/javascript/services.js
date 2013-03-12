@@ -26,7 +26,8 @@
 	        		"is_beta_off": value.is_beta_off,
 	        		"keep_beta_under": value.keep_beta_under,
 	        		"beta_route_id": value.beta_route_id,
-	        		"master_route_id": value.master_route_id
+	        		"master_route_id": value.master_route_id,
+	        		"old_route_goes_to_master": value.old_route_goes_to_master || "true"
 	        	});
 	        	ajax.success(callback);
 	        	ajax.error(onError);

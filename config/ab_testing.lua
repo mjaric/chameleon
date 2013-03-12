@@ -59,26 +59,33 @@ if url_test[uri] then
 	cookie_value = url_test[uri];
 end
 
+res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
+if not res then
+    ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
+    return;
+end
+local temp = red:array_to_hash(res);
+if not temp or not temp[cfg.key_name.OLD_ROUTE_GOES_TO_MASTER] then
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_ROUTE_ID, "beta");
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_ROUTE_ID, "master");
+    red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.OLD_ROUTE_GOES_TO_MASTER, "true");
+end
+res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
+if not res then
+    ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
+    return;
+end
+local lb_status = red:array_to_hash(res);
+
+if lb_status.old_route_goes_to_master ~= "true" then
+    cookie_value = nil
+end
+
 if not cookie_value then
-    res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
-    if not res then
-        ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
-        return;
-    end
-    local temp = red:array_to_hash(res);
-    if not temp or not temp[cfg.key_name.BETA_ROUTE_ID] then
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_ROUTE_ID, "beta");
-        red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_ROUTE_ID, "master");
-    end
-    res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
-    if not res then
-        ngx.log(ngx.ERR, "failed to get groundlink_ab_test hash: ", err);
-        return;
-    end
-    local lb_status = red:array_to_hash(res);
+    
     local beta_percentage =  lb_status.beta_user_count * 100 / (lb_status.master_user_count + lb_status.beta_user_count);
     local master_percentage = lb_status.master_user_count * 100 / (lb_status.master_user_count + lb_status.beta_user_count);
 
@@ -88,7 +95,7 @@ if not cookie_value then
 	        ngx.log(ngx.ERR, "failed to increment groundlink_ab_test master_user_count: ", err);
 	        return;
 	    end
-    	cookie_value = "master";
+    	cookie_value = lb_status.master_route_id;
     else
     	res, err = red:hincrby(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, 1);
 	    if not res then
@@ -101,10 +108,12 @@ if not cookie_value then
     
 end
 
-setRouteCookie(cookie_value);
+
 res, err = red:hgetall(cfg.key_name.LOAD_BALANCE);
 local redis_config = red:array_to_hash(res);
 red:close();
+
+setRouteCookie(cookie_value);
 
 ngx.var.ab_backend =  cookie_value ;
 if cookie_value == redis_config.beta_route_id then
