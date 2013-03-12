@@ -66,7 +66,7 @@ if not cookie_value then
         return;
     end
     local temp = red:array_to_hash(res);
-    if not temp[cfg.key_name.BETA_ROUTE_ID] then
+    if not temp or not temp[cfg.key_name.BETA_ROUTE_ID] then
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.BETA_COUNTER, "1");
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.MASTER_COUNTER, "1");
         red:hset(cfg.key_name.LOAD_BALANCE, cfg.key_name.KEEP_BETA_UNDER, "5");
