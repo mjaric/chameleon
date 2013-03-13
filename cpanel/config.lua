@@ -17,7 +17,7 @@ local cfg = {
 
 };
 if ngx.var.staging == "production" then
-    cfg["REDIS_HOST_NAME"] = "10.56.85.22";
+    cfg["REDIS_HOST_NAME"] = "10.56.85.18";
     cfg["BETA_HOST_NAME"] = "preview.groundlink.com";
     cfg["MASTER_HOST_NAME"] = "www.groundlink.com";
 else
