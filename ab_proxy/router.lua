@@ -21,3 +21,8 @@ function handle_request()
 	ngx.log(ngx.INFO, "URL ACCESS " .. ngx.var.uri);
 	Strategy.handle_url(ngx.var.uri);
 end
+
+
+function add_strategy(s)
+	Strategy.build_from(s);
+end
