@@ -81,11 +81,47 @@ function load(self, routes)
 			local match = path_regex;
 			local param_names = path_param_names;
 			-- here we are proxing reqest to underlying action 
-			local route_values = utils.capture_matches(req.path:find(match));
+
+			-- NOTE:
+			-- BUG FOUND IN NGINX LUA, BELOW SHOULD WORK IN NATIVE
+			
+			-- local route_values = {};
+			-- ngx.say(req.path:find(match));
+			-- req.path:gsub(match, function(...) 
+			-- 	ngx.say(type(arg))
+			-- 	if arg ~= nil then
+			-- 		for i,k in ipairs(arg) do
+			-- 			route_values[i] = arg[i];
+			-- 		end
+			-- 	end
+			-- end);
+			-- local temp = { };
+			-- for i, value in pairs(route_values) do
+			-- 	temp[param_names[i]] = value; 
+			-- end
+
+
+			-- NOTE: QUICK FIX : Instead of above, for temp solution we will use only max 5 caputes
+			local _, __, p1, p2, p3, p4, p5 = req.path:find(match);
 			local temp = { };
-			for i, value in pairs(route_values) do
-				temp[param_names[i]] = value; 
+			if p1 then
+				temp[param_names[1]] = p1;
 			end
+			if p2 then
+				temp[param_names[2]] = p2;
+			end
+			if p3 then
+				temp[param_names[3]] = p3;
+			end
+			if p4 then
+				temp[param_names[4]] = p4;
+			end
+			if p5 then
+				temp[param_names[5]] = p5;
+			end
+
+			-- End of QUICK FIX
+
 			-- merge route key value pairs to reqest parameters
 			utils.extend(req.params, temp);
 			route.action(req.params);
