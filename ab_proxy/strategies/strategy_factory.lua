@@ -62,12 +62,12 @@ local function build_routing_table(data)
 		end
 	end
 	if #result == 0 then
-		result[#result + 1] = BalanceStrategy:create();
 		result[#result + 1] = BNodeStrategy:create({
 			handles_path = "^/web/groundlink/(.*)$", 
 			a_route = "",
 			b_route = "" 
 		});
+		result[#result + 1] = BalanceStrategy:create();
 	end
 	strategies = result;
 end
@@ -112,4 +112,8 @@ function handle_url(url)
 		end
 	end
 	route_strategy:execute();
+end
+
+function get_strategies()
+	return strategies;
 end

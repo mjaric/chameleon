@@ -1,6 +1,7 @@
 local render = ngx.say;
 local log = ngx.log;
 local balance = balance;
+local ab_proxy = ab_proxy;
 local serialize = cjson.encode;
 local deserialize = cjson.decode;
 
@@ -28,7 +29,9 @@ local routes = {
 		render(json);
 	end},
 	{method= "GET", path = "/experiments", action = function(params)
-		
+		local strategies = ab_proxy.get_strategies();
+		local json = serialize(strategies);
+		render(json);
 	end},
 	{method= "GET", path = "/experiments/:id", action = function(params)
 		
