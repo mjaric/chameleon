@@ -1,6 +1,6 @@
 (function(){
 	"use strict";
-	var app = angular.module("abCPanel",["ngResource"]);
+	var app = angular.module("abCPanel",["ngResource", "ui.sortable"]);
 
 	app.config(function($routeProvider) {
 			$routeProvider.when("/",{

@@ -1,0 +1,39 @@
+<h1 class="content-subhead pure-u-1">A/B Proxy Routes And Handlers</h1>
+<div class="view pure-u-1">
+	<div class="pure-g">
+		<div class="pure-u-1">
+			<ul class="button-group">
+				<li><button class="pure-button" ng-click="resetChanges()">Reset</button></li>
+				<li><button class="pure-button blue" ng-click="saveChanges()">Save</button></li>
+			</ul>
+		</div>
+	</div>
+	<hr>
+	<ul id="experiments_list" class="pure-u-1" ui-sortable="sortingOptions" ng-model="experiments">
+		<li class="pure-g ui-state-default" ng-repeat="experiment in experiments">
+			
+			<div class="pure-u-1">
+				<a 	class="pure-button" 
+				  	style="padding: 4px 10px">|||</a>
+				<span 
+					class="strategy-title" 
+					ng-class="{'green' : experiment.is_active, 'red': !experiment.is_active}"
+					ng-bind="experiment.strategy_type"></span>
+				<span>ON: <input type="text" ng-model="experiment.handles_path"></span>
+				<span>A: <input ng-bind="experiment.a_route" type="text"></span>
+				<span>B: <input ng-bind="experiment.b_route" type="text"></span>
+				<span>
+					<a class="pure-button" style="padding: 4px 10px"
+					ng-bind="experiment.is_active ? 'ON' : 'OFF'"
+					ng-click="experiment.is_active = !experiment.is_active;"
+					ng-class="{'green' : experiment.is_active, 'red': !experiment.is_active}"
+					></a>
+				</span>
+			</div>
+					
+			
+			</div>
+		</li>
+	</ul>
+	
+</div>

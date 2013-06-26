@@ -33,14 +33,18 @@ local routes = {
 		local json = serialize(strategies);
 		render(json);
 	end},
+	
 	{method= "GET", path = "/experiments/:id", action = function(params)
 		local strategy = ab_proxy.get_strategies()[tonumber(params.id)];
 		local json = serialize(strategy);
 		render(json);
 	end},
+	
 	{method= "POST", path = "/experiments", action = function(params)
+		-- save new experiment on top of list
 
 	end},
+
 	{method= "PUT", path = "/experiments/:id", action = function(params)
 
 	end},
