@@ -4,14 +4,16 @@ local balance = balance;
 local serialize = cjson.encode;
 local deserialize = cjson.decode;
 
+
 local ERROR = ngx.ERR;
 local WARNING = ngx.WARN;
 local INFO = ngx.INFO;
 
+
 module("ab_proxy.api.routes");
 
 local routes = {
-	{method= "GET", path = "/balance", action = function(params)
+	{method= "GET", path = "/balance", action = function(params)		
 		local json = serialize(balance.get_data());
 		render(json);
 	end},

@@ -7,6 +7,9 @@ local pairs = pairs;
 local tonumber = tonumber;
 local string = string;
 local type = type;
+local balance = balance;
+local ab_proxy = ab_proxy;
+local initialized = initialized;
 
 module("ab_proxy.api.rack");
 
@@ -91,6 +94,11 @@ function load(self, routes)
 end
 
 function handle_reqest(self)
+	if not initialized then
+		initialized = true;
+		balance.load();
+		ab_proxy.initialize();
+	end
 	local request = get_request();
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;
