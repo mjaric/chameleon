@@ -8,17 +8,13 @@ if not initialized then
 	-- reload any routes which may be stored last time server was running
 	-- since routes are persisted in db while they are changed in control panel 
 	-- we don't need to save them. this is only for initial request
-	router.initialize();
+	ab_proxy.initialize();
 
 	-- finaly set global to true so no more load requests is performed later	
 	initialized = true;
 end
-
-
-
-router.handle_request();
-
-
+balance.load_shered_dictionary();
+ab_proxy.handle_url(ngx.var.uri);
 -- save last 60 seconds increments of A and B node visit counters. If last save was before 60 seconds
 -- save will be skipped (don't worry, all is kept in ngx memory)
 balance.save_async();

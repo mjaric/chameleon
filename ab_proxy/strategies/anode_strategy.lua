@@ -11,7 +11,8 @@ local Strategy = {
 	strategy_type = "force_a",
 	handles_path = "^/$",
 	a_route = "/",
-	b_route = "/web/groundlink/"
+	b_route = "/web/groundlink/",
+	is_active = true
 };
 
 local ANodeStrategy_mt = { __index = _M };
@@ -26,21 +27,28 @@ function create(self, tbl)
 end
 
 function is_match_of(self, url)
-	local u = utils.unescape(url);
-	-- todo: probably, there is need to have some escaping 
-	-- for pattern matching string to make input much easier
-	return u:find(self.handles_path);
-	-- return url == self.match_expression;
+	local is_match = false;
+	if self.is_active then
+		local u = utils.unescape(url);
+		-- todo: probably, there is need to have some escaping 
+		-- for pattern matching string to make input much easier
+		if u:find(self.handles_path) then
+			is_match = true;
+		end
+	end
+	return is_match;
 end
 
 function execute(self)
 	local version = balance.get_test_version();
-	local cookie_value = "1x-" .. version;
+	local cookie_a = "1x-" .. version;
+	local has_cookie = not ngx.var.cookie_ROUTE or ngx.var.cookie_ROUTE == ngx.null;
 
-	if ngx.var.cooke_ROUTE ~= cookie_value then
+	if has_cookie or ngx.var.cooke_ROUTE ~= cookie_a then
 		balance.inc_a();
 	end
-	ngx.header['Set-Cookie']= utils.build_cookie(cookie_value, "/");
+
+	ngx.header['Set-Cookie']= utils.build_cookie(cookie_a, "/");
 	ngx.var.node_domain = config.master_domain;
 	ngx.var.node = "master";
 	if self.a_route ~= "" and ngx.var.uri ~= self.a_route then

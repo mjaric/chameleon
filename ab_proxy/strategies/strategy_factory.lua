@@ -104,13 +104,12 @@ function handle_url(url)
 	local route_strategy = default;
 	
 	for i,s in ipairs(strategies) do
-		local first, last = s:is_match_of(url);
-		if first and last then
+		
+		if s:is_match_of(url) then
 			route_strategy = s;
-			ngx.log(ngx.INFO, "Found custom strategy at index ..... " .. i);
+			ngx.log(ngx.INFO, "Custom Strategy is [" .. s.strategy_type .."]");
 			do break end
 		end
 	end
-	ngx.log(ngx.INFO, "Strategy used for this request " .. route_strategy.strategy_type);
 	route_strategy:execute();
 end

@@ -1,0 +1,45 @@
+<html ng-app="abCPanel">
+<head>
+	<title>A/B CPanel</title>
+	<link rel="stylesheet" type="text/css" href="/ab-cpanel/css/pure.css" />
+	<link rel="stylesheet" type="text/css" href="/ab-cpanel/css/style.css" />
+
+	<script src="/ab-cpanel/libs/jquery.min.js"></script>
+	<script src="/ab-cpanel/libs/angular.min.js"></script>
+	<script src="/ab-cpanel/libs/angular-resource.min.js"></script>
+	<script src="/ab-cpanel/app/app.js"></script>
+	<!-- <script src="/ab-cpanel/app/directives/.js"></script> -->
+	<!-- <script src="/ab-cpanel/app/controllers/.js"></script> -->
+	<script src="/ab-cpanel/app/controllers/balance.js"></script>
+	<script src="/ab-cpanel/app/controllers/experiments.js"></script>
+	
+</head>
+<body ng-controller="ApplicationCtrl">
+<div class="pure-g" id="layout">
+    <div class="sidebar pure-u">
+    	<header class="header pure-u-1">
+            <hgroup>
+            	<h1 class="brand-title pure-u-1">A/B Proxy</h1>    
+                <h4 class="brand-title">The Ultimate A/B Testing Control Panel</h4>
+            </hgroup>
+            <hr />
+            <nav class="pure-menu pure-menu-open">
+                <ul>
+			        <li ng-class="{'selected': isLocation('/')}">
+			        	<a href="#/">Balance</a>
+			        </li>
+			        <li ng-class="{'selected': isLocation('/experiments')}">
+			        	<a href="#/experiments">A/B Routing</a>
+			        </li>
+			    </ul>
+            </nav>
+        </header>
+    </div>
+    <section class="content pure-u-1">
+        <!-- A wrapper for all the blog posts -->
+        <div class="views pure-g" ng-view></div>
+    </section>
+</div>
+
+</body>
+</html>
