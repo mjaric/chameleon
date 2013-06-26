@@ -4,6 +4,7 @@ local type = type;
 local rawset = rawset;
 local rawget = rawget;
 local ngx = ngx;
+local cjson = cjson;
 local string = string;
 local os = os;
 
@@ -207,13 +208,16 @@ end
 -- it returns the array of captured values
 function capture_matches(...)
     local values = {};
-    if arg then 
+    
+    if arg ~= nil then 
         for i,v in ipairs(arg) do 
             if i > 2 then
+                ngx.say(v);
                 -- check if we need to convert value into number
                 -- dates in lua are numbers :) yay!!!
                 local val = tonumber(v);
                 if not val then
+
                     values[#values + 1] = v;
                 else
                     values[#values + 1] = val;
