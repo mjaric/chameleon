@@ -4,13 +4,31 @@ local type = type;
 local rawset = rawset;
 local rawget = rawget;
 local ngx = ngx;
+local cjson = cjson;
 local string = string;
 local os = os;
 
 module("ab_proxy.utils");
 
 -- private
+  local lua_special_pattern_chars = {
+    ["^"] = "%^";
+    ["$"] = "%$";
+    ["("] = "%(";
+    [")"] = "%)";
+    ["%"] = "%%";
+    ["."] = "%.";
+    ["["] = "%[";
+    ["]"] = "%]";
+    ["*"] = "%*";
+    ["+"] = "%+";
+    ["-"] = "%-";
+    ["?"] = "%?";
+    ["\0"] = "%z";
+  };
 
+
+-- public
 function build_cookie(routeid, path)
     path= path or "/";
     local date= os.date("*t");
@@ -18,8 +36,6 @@ function build_cookie(routeid, path)
     local expires = os.date("%A, %d-%b-%Y %X GMT", time);
     return "ROUTE=" .. routeid .. "; Expires=" .. expires .. "; Path=" .. path;
 end
-
--- public
 
 ---Checks if a table is used as an array. That is: the keys start with one and are sequential numbers
 -- @param t table
@@ -48,20 +64,22 @@ function is_array(t)
     return true
 end
 
-function extend(dst, src)
+function extend(dst, src, exclude)
 	if not src then 
 		return dst;
 	end
-
+    exclude = exclude or {};
 	for k, v in pairs(src) do
-		if type(v) == "table" then
-			if not rawget(dst, k) then
-				rawset(dst, k, {});
-			end
-			extend(dst[k], v);
-		else
-			rawset(dst, k, v);
-		end
+        if not exclude[k] then
+    		if type(v) == "table" then
+    			if not rawget(dst, k) then
+    				rawset(dst, k, {});
+    			end
+    			extend(dst[k], v);
+    		else
+    			rawset(dst, k, v);
+    		end
+        end
 	end
 	
 	return dst;
@@ -180,5 +198,33 @@ function encodetable (args)
   return string.sub(strp,2)
 end
 
+function escape_lua_pattern(s)
+    return (s:gsub(".", lua_special_pattern_chars))
+end
 
+-- use it in combination with find
+-- EXAMPLE:
+-- capture_matches(a:find("^/some/([^/.]+)/another/([^/.]+)$"));
+-- it returns the array of captured values
+function capture_matches(...)
+    local values = {};
+    
+    if arg ~= nil then 
+        for i,v in ipairs(arg) do 
+            if i > 2 then
+                ngx.say(v);
+                -- check if we need to convert value into number
+                -- dates in lua are numbers :) yay!!!
+                local val = tonumber(v);
+                if not val then
+
+                    values[#values + 1] = v;
+                else
+                    values[#values + 1] = val;
+                end
+            end
+        end 
+    end 
+    return values;
+end
 

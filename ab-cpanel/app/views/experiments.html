@@ -1,0 +1,98 @@
+<h1 class="content-subhead pure-u-1">A/B Proxy Routes And Handlers</h1>
+<div class="view pure-u-1">
+	<div id="new-experiment-form" 
+		ng-animate="{show:'popup-show', hide: 'popup-hide'}"
+		class="panel" 
+		style="display:none;"
+		ng-show="new_form_visible">
+		<form class="pure-form pure-form-aligned">
+		    <fieldset>
+		        <legend>
+		        	New A/B test handler 
+		        	<button class="pure-button red"
+		        		style="float:right; padding: 2px 4px; font-size: 10px;"
+		        		ng-click="new_form_visible=false">X</button>
+		        </legend>
+		        <div class="pure-control-group">
+		        	<label>Handler Type</label>
+		        	<select class="pure-button-large" 
+		        		ng-model="new_experiment.strategy_type"
+		        		required>
+							<option value="balance">Balance</option>
+							<option value="force_a">Force A node</option>
+							<option value="force_b">Force B node</option>
+		        	</select>
+		        </div>
+		        <div class="pure-control-group">
+		        	<label>{{strategy_types[new_experiment.strategy_type]}} matching URL</label>
+		            <input type="text"
+		            	class="pure-input-1-2" 
+		            	ng-model="new_experiment.handles_path" 
+		            	placeholder="{{strategy_types[new_experiment.strategy_type]}} matching URL ..." 
+		            	required>
+		        </div>
+		        <div class="pure-control-group">
+		        	<label>A node URL</label>
+			        <input type="text" 
+			        	class="pure-input-1-2"
+			        	ng-model="new_experiment.a_route"
+			        	placeholder="A node URL ...">
+			    </div>
+		        <div class="pure-control-group">
+			        <label>B node URL</label>
+			        <input type="text" 
+			        	ng-model="new_experiment.b_route"
+			        	class="pure-input-1-2"
+			        	placeholder="B node URL ...">
+			    </div>
+		    </fieldset>
+		    <div class="pure-controls">
+		    	<button type="submit" class="pure-button" ng-click="addNew()">Add</button>
+		    	<button type="reset" class="pure-button">Reset</button>
+		    </div>
+		</form>
+	</div>
+	<p class="pure-u-1">
+			Using list below arrange execution priorities for test strategies.
+		</p>
+	<div class="pure-g panel">
+		<ul class="button-group pure-u-1-3">
+			<li><button type="button" class="pure-button blue" ng-click="saveAll()">Save All</button></li>
+			<li><button type="button" class="pure-button" ng-click="resetChanges()">Reset All</button></li>
+			<li><button type="button" class="pure-button" ng-click="new_form_visible=true">New</button></li>
+		</ul>
+		<!-- TODO: Make tester service -->
+		<form style="display:none;" ng-controller="ExperimentsTestCtrl" class="pure-form pure-u-2-3">
+				<label>Test URL</label>
+				<input type="text" placeholder="Enter some url" ng-model="test_url" class="pure-u-1-2">
+				<button type="button" ng-click="test(test_url)" class="pure-button blue" style="padding: 4px 10px;">Execute</button>
+				<span ng-bind="test_result"></span>
+		</form>
+		
+	</div>
+	<hr>
+	<ul id="experiments_list" class="pure-u-1" ui-sortable="sortingOptions" ng-model="experiments">
+		<li class="pure-g ui-state-default" ng-repeat="experiment in experiments">
+			
+			<div class="pure-u-1">
+				<a 	class="pure-button" 
+				  	style="padding: 4px 10px">|||</a>
+				<span class="">
+					<button class="strategy-title pure-button" style="padding: 4px 10px"
+					ng-bind="experiment.strategy_type"
+					ng-click="experiment.is_active = !experiment.is_active;"
+					ng-class="{'green' : experiment.is_active, 'red': !experiment.is_active}"
+					></button>
+				</span>
+				<span>ON: <input type="text" ng-model="experiment.handles_path"></span>
+				<span>A: <input ng-model="experiment.a_route" type="text"></span>
+				<span>B: <input ng-model="experiment.b_route" type="text"></span>
+				<button class="pure-button red"
+					 style="padding: 4px 6px; float: right;"
+					 ng-click="remove(experiment)"
+					 >X</button>
+			</div>
+		</li>
+	</ul>
+	
+</div>

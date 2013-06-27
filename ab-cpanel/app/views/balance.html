@@ -1,0 +1,51 @@
+<h1 class="content-subhead pure-u-1">Balancer Configuration</h1>
+<div class="view pure-u-1">
+	<form ng-submit="save()" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label for="balance">A/B % visits</label>
+            <span name="balance">
+            	<span ng-bind="balance.master_user_count"></span> :
+            	<span ng-bind="balance.beta_user_count"></span> = 
+            	<span ng-bind="current_balance"></span> %
+            </span>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="keep_beta_under">Keep B node under</label>
+            <input id="keep_beta_under" name="keep_beta_under" type="range" min="0" max="100" 
+            	ng-model="balance.keep_beta_under"
+            	class="pure-u-1-3">
+            <span ng-bind="balance.keep_beta_under"></span>%
+        </div>
+
+        <div class="pure-control-group">
+        	<label for="beta_on">Balancer Status</label>
+            <ul class="button-group">
+            	<li><button type="button"
+		    		ng-class="{'pure-button-active': !balance.is_beta_off }"
+		    		class="pure-button" 
+		    		style="width: 80px;" 
+		    		ng-click="balance.is_beta_off = !balance.is_beta_off">ON</button></li>
+		    	<li><button type="button"
+		    		ng-class="{'pure-button-active': balance.is_beta_off }"
+		    		class="pure-button" 
+		    		style="width: 80px;" 
+		    		ng-click="balance.is_beta_off = !balance.is_beta_off">OFF</button></li>
+            </ul>
+        </div>
+
+		<div class="pure-control-group">
+            <label for="test_version">Test Version</label>
+            <input id="test_version" name="test_version" type="text"
+            	ng-model="balance.test_version"
+            	class="pure-u-1-3">
+        </div>
+
+ 		<div class="pure-controls">
+            <button type="submit" class="pure-button blue">Save</button>
+            <button type="button" class="pure-button red" ng-click="reset()">Reset</button>
+        </div>
+    </fieldset>
+</form>
+</div>
