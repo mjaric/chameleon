@@ -9,7 +9,9 @@ local string = string;
 local type = type;
 local balance = balance;
 local ab_proxy = ab_proxy;
-local initialize = initialize;
+local function init()
+	initialize();
+end
 
 module("ab_proxy.api.rack");
 
@@ -129,7 +131,7 @@ function load(self, routes)
 end
 
 function handle_reqest(self)
-	initialize();
+	init();
 	local request = get_request();
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;

@@ -26,7 +26,7 @@
 		    update: function(e, ui) { 
 		    	console.log(e,ui); 
 		    },
-		    axis: 'y',
+		    /* axis: 'y', */
 		    placeholder: "ui-state-highlight"
 		};
 		// event handlers
