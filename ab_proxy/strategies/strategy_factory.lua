@@ -13,6 +13,8 @@ local ipairs = ipairs;
 local rawget = rawget;
 local rawset = rawset;
 local cjson = cjson;
+local tostring = tostring;
+local table = table;
 
 
 module("ab_proxy.strategies.strategy_factory");
@@ -42,7 +44,7 @@ local factories = {
 -- 	return s_table;
 -- end
 
-local function build_strategy(t)
+function build_strategy(t)
 	local fun = factories[t.strategy_type];
 	if not fun then
 		ngx.log(ngx.WARN, "Strategy " .. t.strategy_type .. " is not recognised." );
@@ -51,17 +53,18 @@ local function build_strategy(t)
 		return fun(t)
 	end
 end
-
-local function build_routing_table(data)
+function build_strategies_from_table(data)
 	local result = {};
 
-	for i,v in ipairs(data) do
+	for i, v in ipairs(data) do
 		local s = build_strategy(v);
 		if s ~= nil then
 			result[#result + 1] = s;
 		end
 	end
-	if #result == 0 then
+	local count = #result;
+	ngx.log(ngx.INFO, "========= BUILT # " .. tostring(count) .. " strategies =====");
+	if  count < 1 then
 		result[#result + 1] = BNodeStrategy:create({
 			handles_path = "^/web/groundlink/(.*)$", 
 			a_route = "",
@@ -69,7 +72,7 @@ local function build_routing_table(data)
 		});
 		result[#result + 1] = BalanceStrategy:create();
 	end
-	strategies = result;
+	return result;
 end
 
 -- Loads routings strategies from database
@@ -85,6 +88,11 @@ function save()
 		return red:set(REDIS_KEY, cjson.encode(strategies));
 	end);
 end
+function replace_and_save(s)
+	
+	strategies = s;
+	save();
+end
 -- initializes routing strategy table and prepares default strategy when non of custom 
 -- strategies is defined or they are not recognised as the one which should be executed
 function initialize()
@@ -95,7 +103,7 @@ function initialize()
 	else
 		t = cjson.decode(result)
 	end
-	build_routing_table(t);
+	strategies = build_strategies_from_table(t);
 end
 -- this method will find stategy which satisfies routing criteria (url match)
 -- and executes it... if no custom strategy is found in table then default one will be
@@ -116,4 +124,14 @@ end
 
 function get_strategies()
 	return strategies;
+end
+
+function prepand(strategy)
+	local temp = { };
+	temp[#temp + 1] = strategy;
+	for i,v in ipairs(strategies) do
+		temp[#temp + 1] = v;
+	end
+	strategies = temp;
+	return strategy;
 end

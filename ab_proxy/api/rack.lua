@@ -139,6 +139,7 @@ function handle_reqest(self)
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;
 	for route_regex, route_handler in pairs(method_table) do
+		-- ngx.log(ngx.NOTICE, route_regex .. "........." .. request.path .. " ......... ")
 		if request.path:match(route_regex) then
 			route_handler(request);
 			request_handled = true;

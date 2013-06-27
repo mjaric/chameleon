@@ -7,19 +7,19 @@ local setmetatable = setmetatable;
 
 module("ab_proxy.strategies.bnode_strategy");
 
-local Strategy = {
-	strategy_type = "force_b",
-	handles_path = "/",
-	a_route = "/",
-	b_route = "/web/groundlink/",
-	is_active = true
-};
+
 local BNodeStrategy_mt = { __index = _M };
 
 
 function create(self, tbl)
 	tbl = tbl or {};
-	local t = Strategy;
+	local t = {
+		strategy_type = "force_b",
+		handles_path = "/",
+		a_route = "/",
+		b_route = "/web/groundlink/",
+		is_active = true
+	};
 	if type(tbl) == "table" then 
 		utils.extend(t, tbl);
 	end

@@ -8,20 +8,18 @@ local print = print;
 
 module("ab_proxy.strategies.balance_strategy");
 
-local Strategy = {
-	strategy_type = "balance",
-	handles_path = "^/$",
-	a_route = "/",
-	b_route = "/web/groundlink/",
-	is_active = true
-};
-
 local BalanceStrategy_mt = { __index = _M };
 
 
 function create(self,tbl)
 	tbl = tbl or {};
-	local t = Strategy;
+	local t = {
+		strategy_type = "balance",
+		handles_path = "^/$",
+		a_route = "/",
+		b_route = "/web/groundlink/",
+		is_active = true
+	};
 	if type(tbl) == "table" then 
 		utils.extend(t, tbl);
 	end

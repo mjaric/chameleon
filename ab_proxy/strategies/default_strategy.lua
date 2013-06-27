@@ -7,17 +7,18 @@ local type = type;
 local tostring = tostring;
 
 module("ab_proxy.strategies.default_strategy");
-local Strategy = { 
-	strategy_type = "default",
-	handles_path = "^(.*)$",
-	a_route = "^/",
-	b_route = "^/web/groundlink/"
-};
+
 local DefaultStrategy_mt = { __index = _M };
 
 function create(self, tbl)
 	tbl = tbl or {};
-	local t = Strategy;
+	local t ={ 
+		strategy_type = "default",
+		handles_path = "^(.*)$",
+		a_route = "^/",
+		b_route = "^/web/groundlink/",
+		is_active = true
+	};
 	if type(tbl) == "table" then 
 		utils.extend(t, tbl);
 	end
