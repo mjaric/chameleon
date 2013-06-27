@@ -28,11 +28,11 @@ end
 
 function is_match_of(self, url)
 	local is_match = false;
-	if not balance.is_off() then
+	if not balance.is_off() and self.is_active then
 		local u = utils.unescape(url);
 		-- todo: probably, there is need to have some escaping 
 		-- for pattern matching string to make input much easier
-		if u:find(self.handles_path) then
+		if u:match(self.handles_path) then
 			is_match = true;
 		end
 	end

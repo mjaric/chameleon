@@ -9,7 +9,7 @@ local string = string;
 local type = type;
 local balance = balance;
 local ab_proxy = ab_proxy;
-local initialized = initialized;
+local initialize = initialize;
 
 module("ab_proxy.api.rack");
 
@@ -29,7 +29,6 @@ local function get_request()
 		post_args = cjson.decode(request_body);
 	end
 	if post_args then
-		
 		p = utils.extend(p, post_args);
 	end	
 	return {
@@ -130,11 +129,7 @@ function load(self, routes)
 end
 
 function handle_reqest(self)
-	if not initialized then
-		initialized = true;
-		balance.load();
-		ab_proxy.initialize();
-	end
+	initialize();
 	local request = get_request();
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;
@@ -148,6 +143,7 @@ function handle_reqest(self)
 	end
 	if not request_handled then
 		ngx.exit(ngx.HTTP_NOT_FOUND);
+		ngx.log(ngx.WARN, "[".. request.method .."] " .. request.path .. " HTTP 404" );
 	end
 end
 

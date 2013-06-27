@@ -28,11 +28,11 @@ end
 
 function is_match_of(self, url)
 	local is_match = false;
-	if self.is_active then
+	if self.is_active and not balance.is_off() then
 		local u = utils.unescape(url);
 		-- todo: probably, there is need to have some escaping 
 		-- for pattern matching string to make input much easier
-		if u:find(self.handles_path) then
+		if u:match(self.handles_path) then
 			is_match = true;
 		end
 	end
@@ -41,10 +41,10 @@ end
 
 function execute(self)
 	local version = balance.get_test_version();
+	local cookie_value = ngx.var.cookie_ROUTE;
 	local cookie_b = "2x-" .. version;
-	local has_cookie = not ngx.var.cookie_ROUTE or ngx.var.cookie_ROUTE == ngx.null;
 	
-	if has_cookie or cookie_b ~= ngx.var.cookie_ROUTE then
+	if not cookie_value or cookie_value ~= cookie_b then
 		balance.inc_b();
 	end
 
