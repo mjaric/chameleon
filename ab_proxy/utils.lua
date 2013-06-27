@@ -92,7 +92,8 @@ end
 
 
 function async(fn, ...)
-	ngx.thread.spawn(fn, ...);
+	--ngx.thread.spawn(fn, ...);
+    fn(...);
 end
 -- this function should build getter and setter pairs for
 -- any object which wants to hide specific data/table
