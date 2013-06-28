@@ -14,21 +14,25 @@ local WARNING = ngx.WARN;
 local INFO = ngx.INFO;
 
 
+
 module("ab_proxy.api.routes");
 
 local routes = {
 	{method= "GET", path = "/balance", action = function(params)		
-		local json = serialize(balance.get_data());
+		local data = balance.load();
+		local json = serialize(data);
 		render(json);
 	end},
 	{method= "PUT", path = "/balance", action = function(params)
 		balance.update(params);
-		local json = serialize(balance.get_data());
+		local data = balance.load();
+		local json = serialize(data);
 		render(json);
 	end},
 	{method= "DELETE", path = "/balance", action = function(params)
 		balance.reset();
-		local json = serialize(balance.get_data());
+		local data = balance.load();
+		local json = serialize(data);
 		render(json);
 	end},
 	{method= "GET", path = "/experiments", action = function(params)

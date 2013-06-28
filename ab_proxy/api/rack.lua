@@ -9,9 +9,7 @@ local string = string;
 local type = type;
 local balance = balance;
 local ab_proxy = ab_proxy;
-local function init()
-	initialize();
-end
+
 
 module("ab_proxy.api.rack");
 
@@ -131,12 +129,12 @@ function load(self, routes)
 end
 
 function handle_reqest(self)
-	init();
+	balance.load();
+	ab_proxy.initialize();
 	local request = get_request();
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;
 	for route_regex, route_handler in pairs(method_table) do
-		-- ngx.log(ngx.NOTICE, route_regex .. "........." .. request.path .. " ......... ")
 		if request.path:match(route_regex) then
 			route_handler(request);
 			request_handled = true;

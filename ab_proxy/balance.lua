@@ -7,113 +7,107 @@ local pairs = pairs;
 local math = math;
 local setmetatable = setmetatable;
 local print = print;
+local type = type;
 
 module("ab_proxy.balance");
 -- Data structure of balancer configuration
 
-
+local balancer = {};
 local data = {
   master_user_count = 1,
   beta_user_count = 1,
-  is_beta_off = true,
+  is_beta_off = "true",
   keep_beta_under = 5,
-  test_version = "13.071",
-  updated_at = os.time({year=1901, month=1, day=1, hour=1})
+  test_version = "13.071"
 };
 
-function save()
-	db.exec(function(red)
-		data.updated_at = os.time(os.date("*t"));
-		return red:set("experiment", cjson.encode(data));
+balancer = utils.extend(balancer, data);
+
+local function to_lua(tab)
+	local t = {};
+	t = utils.extend(t, tab);	
+	if t.is_beta_off == "false" then
+		t.is_beta_off = false;
+	else
+		t.is_beta_off = true;
+	end
+	return t;
+end
+
+local function to_redis(tab)
+	local t = {};
+	t = utils.extend(t, tab);	
+	if not t.is_beta_off then
+		t.is_beta_off = "false";
+	else
+		t.is_beta_off = "true";
+	end
+	return t;
+end
+
+local function get_balancer()
+	return db.exec(function(red)
+		local res, err = red:hgetall("balancer");
+		res = red:array_to_hash(res);
+		if not res or not res.test_version then 
+			red:hmset("balancer", to_redis(balancer));
+		end 
+		
+		return to_lua(res), err; 
 	end);
-end
-function load_shered_dictionary()
-	-- since we have threads we need to have shared memory dictionary. make sure this is
-	-- executed before rewriting
-	for k,v in pairs(data) do
-		data[k] = ngx.shared.BALANCE:get(k) or data[k];
-	end
-end
-function save_to_shared_dictionary()
-	-- since we have threads we need to have shared memory dictionary. make sure this is
-	-- after request is processed
-	for k,v in pairs(data) do
-		ngx.shared.BALANCE:set(k,v);
-	end
-end
-function save_async()
-	local time_span = os.difftime(os.time(os.date("*t")), data.updated_at);
-	if time_span > 60 then
-		-- data.updated_at = os.time(os.date("*t"));
-		utils.async(save);
-	end
-	save_to_shared_dictionary();
 end
 
 function get_data()
-	return {
-		master_user_count = data.master_user_count,
-		beta_user_count = data.beta_user_count,
-		is_beta_off = data.is_beta_off,
-		keep_beta_under = data.keep_beta_under,
-		test_version = data.test_version
-	};
+	return balancer;
 end
 
-function set_data(t)
-	data.is_beta_off = t.is_beta_off;
-	data.keep_beta_under = t.keep_beta_under;
-	data.test_version = t.test_version;
+function save(t)
+	db.exec(function(red)
+		red:hmset("balancer", to_redis(t));
+	end);
 end
 
 
 function load()
-	local cfg = db.exec(function(red)
-		return red:get("experiment");
-	end);
-	if cfg == ngx.null or not cfg then
-		-- this is case when no configuration is stored into database
-		-- so we want to persist our configuration before we continue
-		save();
-	else
-		data = utils.extend(data,cjson.decode(cfg));
-	end
-	load_shered_dictionary();
+	return utils.extend(balancer, get_balancer());
 end
 
 function update(t)
-	set_data(t);
-	save();
-	save_to_shared_dictionary();
+	save(t);
 end
 
 function inc_a()
-	data.master_user_count = data.master_user_count + 1;
+	db.exec(function(red)
+		return red:hincrby("balancer", "master_user_count", 1);
+	end);
 end
 
 function inc_b()
-	data.beta_user_count = data.beta_user_count + 1;
+	balancer.beta_user_count = db.exec(function(red)
+		return red:hincrby("balancer", "beta_user_count", 1);
+	end);
 end
 
 function get_balance()
-	local total = data.beta_user_count + data.master_user_count;
-	local balance = data.beta_user_count * 100 / total;
+	local total = balancer.beta_user_count + balancer.master_user_count;
+	local balance = balancer.beta_user_count * 100 / total;
 	return math.floor(balance);
 end
 
 function is_off()
-	return data.is_beta_off;
+	return balancer.is_beta_off;
 end
 
 function reset()
-	  data.master_user_count = 1;
-	  data.beta_user_count = 1;
-	  data.is_beta_off = true;
-	  data.keep_beta_under = 5;
-	  save();
+	  balancer.master_user_count = 1;
+	  balancer.beta_user_count = 1;
+	  balancer.is_beta_off = true;
+	  balancer.keep_beta_under = 5;
+	  save(balancer);
+	  load();
 end
 
-utils.build_accesors(_M, data);
+utils.build_accesors(_M, balancer);
 
 
 local module_mt = { 

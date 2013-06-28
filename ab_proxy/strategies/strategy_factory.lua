@@ -80,7 +80,6 @@ end
 -- initializes routing strategy table and prepares default strategy when non of custom 
 -- strategies is defined or they are not recognised as the one which should be executed
 function initialize()
-	ngx.log(ngx.NOTICE, "PLEASE NOTE, WE ARE RELOADING CONFIGURATION");
 	local t = {};
 	local result = load();
 	if not result or result == ngx.null then 
