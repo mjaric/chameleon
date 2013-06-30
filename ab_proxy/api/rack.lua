@@ -17,7 +17,7 @@ local path_match = "/([^/.]+)";
 local function get_request()
 	local m = ngx.req.get_method();
 	local p = ngx.req.get_uri_args() or {};
-	local a = string.gsub(ngx.var.uri, "/ab--cpanel/api(/[^??.]*)??(.*)", "%1");
+	local a = string.gsub(ngx.var.uri, "/ab%-cpanel/api(/[^%?%#]*)([%?%#]?)(.*)", "%1");
 	-- if not string.len(a) then
 		-- naked url
 	-- end

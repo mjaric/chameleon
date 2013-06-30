@@ -61,6 +61,7 @@ local routes = {
 	{method= "DELETE", path = "/experiments/:id", action = function(params)
 		local strategies = ab_proxy.get_strategies();
 		local path = ngx.unescape_uri(params.id);
+		-- ngx.log(ngx.NOTICE, path .. " ====== " .. params.id);
 		for i,v in ipairs(strategies) do 
 			if v.handles_path == path then
 				table.remove(strategies, i);
