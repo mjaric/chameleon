@@ -13,7 +13,7 @@ local ab_proxy = ab_proxy;
 
 module("ab_proxy.api.rack");
 
-local path_match = "/([^/.]+)";
+local path_match = "/([^/]+)";
 local function get_request()
 	local m = ngx.req.get_method();
 	local p = ngx.req.get_uri_args() or {};
