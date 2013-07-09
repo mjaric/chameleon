@@ -7,6 +7,7 @@ local ngx = ngx;
 local cjson = cjson;
 local string = string;
 local os = os;
+local tonumber = tonumber;
 
 module("ab_proxy.utils");
 
@@ -77,7 +78,11 @@ function extend(dst, src, exclude)
     			end
     			extend(dst[k], v);
     		else
-    			rawset(dst, k, v);
+                local value = tonumber(v);
+                if not value then
+                    value = v;
+                end 
+    			rawset(dst, k, value);
     		end
         end
 	end
@@ -87,7 +92,8 @@ end
 
 
 function async(fn, ...)
-	ngx.thread.spawn(fn, ...);
+	--ngx.thread.spawn(fn, ...);
+    fn(...);
 end
 -- this function should build getter and setter pairs for
 -- any object which wants to hide specific data/table

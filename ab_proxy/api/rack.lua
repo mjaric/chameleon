@@ -9,15 +9,15 @@ local string = string;
 local type = type;
 local balance = balance;
 local ab_proxy = ab_proxy;
-local initialized = initialized;
+
 
 module("ab_proxy.api.rack");
 
-local path_match = "/([^/.]+)";
+local path_match = "/([^/]+)";
 local function get_request()
 	local m = ngx.req.get_method();
 	local p = ngx.req.get_uri_args() or {};
-	local a = string.gsub(ngx.var.uri, "/ab--cpanel/api(/[^??.]*)??(.*)", "%1");
+	local a = string.gsub(ngx.var.uri, "/ab%-cpanel/api(/[^%?%#]*)([%?%#]?)(.*)", "%1");
 	-- if not string.len(a) then
 		-- naked url
 	-- end
@@ -29,7 +29,6 @@ local function get_request()
 		post_args = cjson.decode(request_body);
 	end
 	if post_args then
-		
 		p = utils.extend(p, post_args);
 	end	
 	return {
@@ -130,16 +129,12 @@ function load(self, routes)
 end
 
 function handle_reqest(self)
-	if not initialized then
-		initialized = true;
-		balance.load();
-		ab_proxy.initialize();
-	end
+	balance.load();
+	ab_proxy.initialize();
 	local request = get_request();
 	local method_table = self.routing_table[request.method];
 	local request_handled = false;
 	for route_regex, route_handler in pairs(method_table) do
-		-- ngx.log(ngx.NOTICE, route_regex .. "........." .. request.path .. " ......... ")
 		if request.path:match(route_regex) then
 			route_handler(request);
 			request_handled = true;
@@ -148,6 +143,7 @@ function handle_reqest(self)
 	end
 	if not request_handled then
 		ngx.exit(ngx.HTTP_NOT_FOUND);
+		ngx.log(ngx.WARN, "[".. request.method .."] " .. request.path .. " HTTP 404" );
 	end
 end
 

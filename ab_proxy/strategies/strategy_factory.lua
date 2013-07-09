@@ -28,21 +28,6 @@ local factories = {
 	force_a = function(...) return ANodeStrategy:create(...); end,
 	force_b = function(...) return BNodeStrategy:create(...); end
 }
--- in case cjson fail to convert strategy to json object (for some reasone some function is in data table)
--- we can use blow function to convert strategy to hash table
-
--- local function convert_to_lua_table(sts)
--- 	local s_table = {};
--- 	for idx, val in ipairs(sts) do 
--- 		s_table[idx] = {
--- 			strategy_type = val.strategy_type,
--- 			handles_path = val.handles_path,
--- 			a_route = val.a_route,
--- 			b_route = val.b_route
--- 		};	
--- 	end
--- 	return s_table;
--- end
 
 function build_strategy(t)
 	local fun = factories[t.strategy_type];
@@ -63,7 +48,6 @@ function build_strategies_from_table(data)
 		end
 	end
 	local count = #result;
-	ngx.log(ngx.INFO, "========= BUILT # " .. tostring(count) .. " strategies =====");
 	if  count < 1 then
 		result[#result + 1] = BNodeStrategy:create({
 			handles_path = "^/web/groundlink/(.*)$", 
@@ -115,10 +99,10 @@ function handle_url(url)
 		
 		if s:is_match_of(url) then
 			route_strategy = s;
-			ngx.log(ngx.INFO, "Custom Strategy is [" .. s.strategy_type .."]");
 			do break end
 		end
 	end
+	ngx.log(ngx.NOTICE, "Using strategy [" .. route_strategy.strategy_type:upper() .."]");
 	route_strategy:execute();
 end
 

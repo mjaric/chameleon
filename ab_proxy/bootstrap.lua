@@ -12,4 +12,4 @@ routes = require('ab_proxy.api.routes');
 -- initialization for api and control-panel ui  
 rack:load(routes);
 -- initialization true/false flag for balancer and strategies for ab_proxy
-initialized = false;
+
