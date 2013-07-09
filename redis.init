@@ -1,4 +1,0 @@
-hset groundlink_ab_test beta_user_count 1
-hset groundlink_ab_test master_user_count 1
-hset groundlink_ab_test keep_beta_under 30
-hset groundlink_ab_test is_beta_off on
