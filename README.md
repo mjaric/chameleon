@@ -1,4 +1,4 @@
-# NGINX A/B testing proxy
+# Chameleon
 
 ab-proxy is set of lua scrpits used to swap upstream servers so you can do A/B testing using 2 versions of same application. It is not simple A/B page testing tool. It should be used when you are mesuring overall user experiance between two aplications.
 
