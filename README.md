@@ -62,11 +62,7 @@ So, we are finaly at point where we can setup our virtual host and enhance it wi
 
  # Master is your A version
 upstream master {
-    # you can even manage load balancer
-    ip_hash;
-    server a-node1.yourdomain.com:80 max_fails=3  fail_timeout=15s;
-    server a-node2.yourdomain.com:80 weight=2;
-    server a-node3.yourdomain.com:80 down;
+    server a-node.yourdomain.com:80;
 }
 
  # beta is your B version
