@@ -85,29 +85,19 @@ server {
 
     # extendable api used for managing chameleon at runtim (changin its dynamic configuration)
     location /ab-cpanel/api {
-        # autoindex on;  
-        # satisfy any;
-        # deny all;
-        # allow 127.0.0.1/32;
-        # auth_basic "Chameleon CPanel";
-        # auth_basic_user_file <PATH_TO_AUTH_FILE>/authfile;
+        # Consider to add authorization
         default_type application/json;
         content_by_lua_file $root_path/ab_proxy/api/app.lua;
     }
 
     # UI for chameleon
     location /ab-cpanel {
-        # autoindex on;  
-        # satisfy any;
-        # deny all;
-        # allow 127.0.0.1/32;
-        # auth_basic "Chameleon CPanel";
-        # auth_basic_user_file <PATH_TO_AUTH_FILE>/authfile;
+        # Consider to add authorization
         default_type text/html;
         root $root_path;
         index index.html;
     }
-    
+
     # all request are proxied here, chameleon will capture cookie and decide 
     # which upstream will be set in $hode variable
     location / {
@@ -126,7 +116,7 @@ server {
 
 Where we can note 3 nginx directives
 
-``` init_by_lua_file /Users/miskovac/Projects/glink/ab_proxy/ab_proxy/bootstrap.lua; ```
+``` init_by_lua_file $root_path/ab_proxy/bootstrap.lua; ```
 
 It will initialize/bootstrap internal lua modules and prepare what ever is needed to proces request (do rewrite)
 
