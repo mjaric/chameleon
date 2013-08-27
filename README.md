@@ -1,13 +1,13 @@
 # Chameleon
 
-ab-proxy is set of lua scrpits used to swap upstream servers so you can do A/B testing using 2 versions of same application. It is not simple A/B page testing tool. It should be used when you are mesuring overall user experiance between two aplications.
+Chameleon is set of lua scrpits used to swap upstream servers so you can do A/B(/C/D...) testing using 2+ versions of same application. It is not simple A/B content testing tool. It should be used when you are mesuring overall user experiance between two aplications or you are doing simply doing lean starup and you want to experiment with features.
 
 ## Requirements
 
 * Compiler for environement and dev tools 
 * Openresty - http://openresty.org/
 * Redis somwhere hosted - http://redis.io/
-* 2 instances of webaplication you want to host
+* 2 or more instances of webaplication you want to host
 
 ## Instalation
 
@@ -42,36 +42,77 @@ The ```make install``` will copy binary to ```/opt/openresety``` optionaly you c
 
 ## Simple Configuration
 
-Simple configuration for nginx is like below
+Before you continue with configuration, make shure that lua script paths are correct. You can do this simply by amending your nginx.config file like below:
+
+```
+http {
+    
+    ...
+    lua_package_path '/opt/openresety/lualib/?.lua;<PATH_TO_CHAMELEON_SCRIPTS>/?.lua;;';
+    ...
+
+}
+```
+
+This will tell luajit where too lookup for lua lua script you are requiring
+
+So, we are finaly at point where we can setup our virtual host and enhance it with chameleon
 
 ```nginx
 
+ # Master is your A version
 upstream master {
-    server www.qa.groundlink.us:80;
-}
-upstream ssl_master {
-    server www.qa.groundlink.us:443;
+    # you can even manage load balancer
+    ip_hash;
+    server a-node1.yourdomain.com:80 max_fails=3  fail_timeout=15s;
+    server a-node2.yourdomain.com:80 weight=2;
+    server a-node3.yourdomain.com:80 down;
 }
 
+ # beta is your B version
 upstream beta {
-    server www2.qa.groundlink.us:80;
-}
-upstream ssl_beta {
-    server www2.qa.groundlink.us:443;
+    server b-node.yourdomain.com:80;
 }
 
-init_by_lua_file /Users/miskovac/Projects/glink/ab_proxy/ab_proxy/bootstrap.lua;
+init_by_lua_file <PATH_TO_CHAMELEON_SCRIPTS>/ab_proxy/bootstrap.lua;
 
 server {
     listen       80;
-    server_name  dev.qa.groundlink.us;
-    error_log /var/log/nginx/ab_proxy.log debug;
-    
+    server_name  yourdomain.local;
+    error_log /var/log/nginx/chameleon.log debug;
     set $environment "dev";
-    set $root_path /Users/miskovac/Projects/glink/ab_proxy;
+    set $root_path <PATH_TO_CHAMELEON_SCRIPTS>;
+
+    # extendable api used for managing chameleon at runtim (changin its dynamic configuration)
+    location /ab-cpanel/api {
+        # autoindex on;  
+        # satisfy any;
+        # deny all;
+        # allow 127.0.0.1/32;
+        # auth_basic "Chameleon CPanel";
+        # auth_basic_user_file <PATH_TO_AUTH_FILE>/authfile;
+        default_type application/json;
+        content_by_lua_file $root_path/ab_proxy/api/app.lua;
+    }
+
+    # UI for chameleon
+    location /ab-cpanel {
+        # autoindex on;  
+        # satisfy any;
+        # deny all;
+        # allow 127.0.0.1/32;
+        # auth_basic "Chameleon CPanel";
+        # auth_basic_user_file <PATH_TO_AUTH_FILE>/authfile;
+        default_type text/html;
+        root $root_path;
+        index index.html;
+    }
+    
+    # all request are proxied here, chameleon will capture cookie and decide 
+    # which upstream will be set in $hode variable
     location / {
         set $node "master";
-        set $node_domain "www.qa.groundlink.us";
+        set $node_domain "yourdomain.local"; #change this with your default domain
         rewrite_by_lua_file $root_path/ab_proxy/process_request.lua;
         proxy_pass http://$node;
         proxy_set_header Host $node_domain;
@@ -80,47 +121,7 @@ server {
     }   
 }
 
-server {
-    listen       	443 ssl;
-    server_name 	dev.qa.groundlink.us; 
-    error_log /var/log/nginx/ab_proxy.log debug;
-    ssl_certificate      /Users/miskovac/config/groundlink-ssl/qa.groundlink.us.crt;
-    ssl_certificate_key  /Users/miskovac/config/groundlink-ssl/nginx.qa.groundlink.us.key;
-    set $environment "dev";
-    set $root_path /Users/miskovac/Projects/glink/ab_proxy;
-    location /ab-cpanel/api {
-        # autoindex on;  
-        # satisfy any;
-        # # deny all;
-        # allow 127.0.0.1/32;
-        # auth_basic "GroundLink AB CPanel Login";
-        # #auth_basic_user_file /var/www/vhost/groundlink.com/authfile;
-        default_type application/json;
-        content_by_lua_file $root_path/ab_proxy/api/app.lua;
-    }
-    location /ab-cpanel {
-        # autoindex on;  
-        # satisfy any;
-        # # deny all;
-        # allow 127.0.0.1/32;
-        # auth_basic "GroundLink AB CPanel Login";
-        # #auth_basic_user_file /var/www/vhost/groundlink.com/authfile;
-        default_type text/html;
-        root $root_path;
-        index index.html;
-    }
-    location / {
-        set $node "master";
-        set $node_domain "www.qa.groundlink.us";
-    	rewrite_by_lua_file $root_path/ab_proxy/process_request.lua;
-        proxy_set_header Host $node_domain;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
-        proxy_pass https://ssl_$node;
-        proxy_redirect  off;
-    }
-}
+
 ```
 
 Where we can note 3 nginx directives
