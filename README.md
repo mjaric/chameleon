@@ -112,19 +112,21 @@ server {
 
 Where we can note 3 nginx directives
 
-``` init_by_lua_file $root_path/ab_proxy/bootstrap.lua; ```
+` init_by_lua_file $root_path/ab_proxy/bootstrap.lua; `
 
 It will initialize/bootstrap internal lua modules and prepare what ever is needed to proces request (do rewrite)
 
 Second is 
 
-``` rewrite_by_lua_file $root_path/ab_proxy/process_request.lua; ```
+` rewrite_by_lua_file $root_path/ab_proxy/process_request.lua; `
 
-which is processing request and rewrite headers. It will produce set 2 nginx variables ```$node``` and ```$node_domain`` which are used to swap upstream servers where your applications are served.
+which is processing request and rewrite headers. It will produce set 2 nginx variables `$node` and `$node_domain` which are used to swap upstream servers where your applications are served.
 
 Third is
 
-```content_by_lua_file $root_path/ab_proxy/api/app.lua;```
+`content_by_lua_file $root_path/ab_proxy/api/app.lua;`
 
 Which is there to serve API for UI. This api offers methods where you can change strategies for A/B trafic balancing or turn experiments off so all trafic go to default node ("master");
+
+Finally, you will need redis to help chameleon storing data and dynamic configuration so please refer to  configuration file `ab_proxy/config.lua`.
 

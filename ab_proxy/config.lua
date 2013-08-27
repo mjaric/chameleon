@@ -6,31 +6,23 @@ local dev = {
 	redis_ip = "127.0.0.1",
 	redis_port = "6379",
 	redis_db = "0",
-	master_domain = "www.qa.groundlink.us",
-  	beta_domain = "www2.qa.groundlink.us"
+	master_domain = "a-node.yourdomain.com",
+	beta_domain = "b-node.yourdomain.com"
 };
 
-local qa = {
-	redis_ip = "10.54.184.167",
-	redis_port = "6379",
-	redis_db = "2",
-	master_domain = "www.qa.groundlink.us",
-  	beta_domain = "www2.qa.groundlink.us"
-};
+-- local prod = {
+-- 	redis_ip = "127.0.0.1",
+-- 	redis_port = "6379",
+-- 	redis_db = "2",
+-- 	master_domain = "a-node.yourdomain.com",
+--   	beta_domain = "b-node.yourdomain.com"
+-- };
 
-
-local prod = {
-	redis_ip = "stream1.sl.towncar.us",
-	redis_port = "6379",
-	redis_db = "2",
-	master_domain = "www.groundlink.com",
-  	beta_domain = "preview.groundlink.com"
-};
-
+-- add any configuration profile here if you need it
+-- but dont forget to update nginx setver section and set var $environment = "your_profile";
 local cfg = {
-	dev = dev,
-	qa = qa,
-	prod = prod
+	-- production = prod,
+	dev = dev
 }
 
 function get()

@@ -10,6 +10,7 @@
 	<script src="/ab-cpanel/libs/angular.min.js"></script>
 	<script src="/ab-cpanel/libs/angular-resource.min.js"></script>
 	<script src="/ab-cpanel/app/app.js"></script>
+	<script src="/ab-cpanel/app/models/balance_resource.js"></script>
 	<!-- <script src="/ab-cpanel/app/directives/.js"></script> -->
 	<script src="/ab-cpanel/app/directives/ui-sortable.js"></script>
 	<!-- <script src="/ab-cpanel/app/controllers/.js"></script> -->
@@ -22,17 +23,17 @@
     <div class="sidebar pure-u">
     	<header class="header pure-u-1">
             <hgroup>
-            	<h1 class="brand-title pure-u-1">A/B Proxy</h1>    
+            	<h1 class="brand-title pure-u-1">Chameleon</h1>    
                 <h4 class="brand-title">The Ultimate A/B Testing Control Panel</h4>
             </hgroup>
             <hr />
             <nav class="pure-menu pure-menu-open">
                 <ul>
 			        <li ng-class="{'selected': isLocation('/')}">
-			        	<a href="#/">Balance</a>
+			        	<a href="#/">Test Balance</a>
 			        </li>
 			        <li ng-class="{'selected': isLocation('/experiments')}">
-			        	<a href="#/experiments">A/B Routing</a>
+			        	<a href="#/experiments">Experiments</a>
 			        </li>
 			    </ul>
             </nav>

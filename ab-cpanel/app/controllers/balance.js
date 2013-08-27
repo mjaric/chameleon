@@ -1,7 +1,7 @@
 (function(){
 	"use strict";
 	var app = angular.module("abCPanel");
-	app.controller("BalanceCtrl",["$scope", "$resource", function($scope, $resource){
+	app.controller("BalanceCtrl",["$scope", "Balance", function($scope, Balance){
 		// $scope.balance = { 
 		// 	master_user_count: 10,
 		// 	beta_user_count: 3,
@@ -9,13 +9,7 @@
 		// 	keep_beta_under: 5,
 		// 	test_version: "13.071"
 		// }
-		var Balance = $resource("/ab-cpanel/api/balance", {}, {
-			'get':    {method:'GET'},
-			'save':   {method:'POST'},
-			'update': {method:'PUT'},
-			'query':  {method:'GET', isArray:false},
-			'delete': {method:'DELETE'} 
-		});
+		
 		$scope.balance = Balance.get();
 
 		$scope.__defineGetter__("current_balance", function(){
