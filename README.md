@@ -4,7 +4,7 @@ Chameleon is set of lua scrpits used to swap upstream servers so you can do A/B(
 
 ## Requirements
 
-* Compiler for environement and dev tools 
+* Compiler for environement and dev tools (check openresty website for detailss)
 * Openresty - http://openresty.org/
 * Redis somwhere hosted - http://redis.io/
 * 2 or more instances of webaplication you want to host
