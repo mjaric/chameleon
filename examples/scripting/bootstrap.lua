@@ -1,8 +1,6 @@
-local cjson = require('cjson');
---local db = require('chameleon.db');
-
 balance = require('chameleon.balance');
 balance.initialize('version-1.0.1');
+balance.set_percentage(10);
 balance.set_status(1);
 
 
@@ -18,7 +16,7 @@ local BNodeRoute = require('chameleon.strategies.bnode_strategy');
 local default = DefaultRoute:create();
 local routes = {
 	BalancedRoute:create{
-		handles_path = '^/my%-experiment%-page',
+		handles_path = '^/',
 		a_route = '',
 		b_route = ''
 	}
@@ -30,9 +28,7 @@ local routes = {
 function handle_url(url)
 	local route_strategy = default;
 	
-	for i,s in ipairs(routes) do
-		
-		
+	for i,s in ipairs(routes) do		
 		if s:is_match_of(url) then
 			ngx.log(ngx.NOTICE, 'Using strategy [' .. s.strategy_type:upper() ..']');
 			s:execute();

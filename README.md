@@ -99,12 +99,73 @@ Also Chameleon contains `Balance` counter module (chameleon/blanace.lua) which i
 
 Each website has home page, landing pages, pages linked in email or text messages and so on. Chameleon should see those pages as entry points to your A/B test. If HTTP request URL match to strategy entry point, Chameleon will execute strategy so it determine which version should be presented to visitor by respecting either set A:B balance or forcing one of versions to appear. Chameleon has 3 strategies which you can combine:
 
--   `BalanceStrategy` (chameleon/strategies/balance\_strategy.lua) which will allways respect balance of how many version entrances was till moment of next new visit of A or B version. If `BALANCE =  (B_ENTRENCE_COUNT / (A_ENTRENCE_COUNT + B_ENTRENCE_COUNT) ) * 100` is greather than percentage set in Balance module (chameleon/balance) instance
+-   `BalanceStrategy` (chameleon/strategies/balance\_strategy.lua) which will allways respect balance of how many version entrances was till moment of next new visit of A or B version. If `BALANCE =  (B_ENTRENCE_COUNT / (A_ENTRENCE_COUNT + B_ENTRENCE_COUNT) ) * 100` is greather than percentage set in Balance module (chameleon/balance) instance it will set A version ROUTE cookie. otherwise it will set B version cookie and deliver html of B version nginx upstream.
 
--   `ANodeStrategy` (chameleon/strategies/anode\_strategy.lua) which will allways force A version when accessed link match criteria set in this strategy
+-   `ANodeStrategy` (chameleon/strategies/anode\_strategy.lua) which will allways force A version when accessed link match criteria set in this strategy. ROUTE cookie will be set to A version
 
--   `BNodeStrategy` (chameleon/strategies/bnode\_strategy.lua) which is created for same purpose as ANodeStragey but it will always preset ROUTE cookie to B version and visitor will continue with new user experiance with each new request
+-   `BNodeStrategy` (chameleon/strategies/bnode\_strategy.lua) which is created for same purpose as ANodeStragey but it will always set ROUTE cookie to B version and visitor will continue with new user experiance with each new request
 
 Alongside with entry point strategies Chameleon contains also so called `DefaultStrategy` which has only one simple task and that is to ensure that wisitor always see version of your application which is set in browser cookie.
+
+## Simple Scenario as Exercise
+
+**Requirement:*** We developed new feature for our website and before we fully launch we want to test this this feature by drawing 10% of website traffic to B version (B version contains this new feature). We also want to send email letter with invitation to a handful of people we could trust to join our beta program. The email should contain link to landing page, something like http://some-web.com/join\_beta\_program.*
+
+In requirements we can see that desired balance is 10% so first thing to do is setup Balance module. This and strategies setup should be done in `init_by_lua` nginx directive under server section. So amend above virtual host configuration and just below `lua_shared_dic` add following:
+
+    init_by_lua "
+        balance = require('chameleon.balance');
+        balance.initialize('version-1.0.1');
+        balance.set_percentage(10);
+        -- this will turn on experiment, if you want to delay testing set it status zero
+        balance.set_status(1);
+    ";
+
+Also in requirement we can see that there are 2 entry points in website. First is home page and second is link in email. To resolve homepage entry point we will use `BalanceStrategy` and for link in email we will force B version using `BNodeStrategy` so the rest of init code should look like below
+
+    local BalanceStrategy = require('chameleon.strategies.balance_strategy');
+    local BNodeStrategy = require('chameleon.strategies.bnode_strategy');
+
+    -- required to handle all other requests
+    local DefaultStrategy = require('chameleon.strategies.default_strategy');
+    local default = DefaultStrategy:create();
+
+    -- array of experiment entry points
+    local routes = {
+        BalanceStrategy:create{
+            handles_path = '^/',
+    	a_route = '',
+    	b_route = ''
+        },
+        BNodeStrategy:create{
+            handles_path = '^/join%_beta%_program$',
+            a_route = '',
+            b_route = '/'
+        }
+    } 
+
+    -- this method will find stategy which satisfies routing criteria (url match)
+    -- and executes it... if no custom strategy is found in table then default one 
+    -- will be executed
+    function handle_url(url)
+        for i,s in ipairs(routes) do		
+            if s:is_match_of(url) then
+                -- url matches and we need to execute strategy
+                s:execute();
+                return;
+            end
+        end
+        -- nothing match to current request
+        -- so execute default strategy
+        default:execute();
+    end
+
+Next thing to do is add one more line of code in `location /` nginx directive just before the line with `proxy_pass` directive
+
+    rewrite_by_lua "handle_url(ngx.var.uri);";
+
+And we are done. We have Balnce setup, home page is first entry point for regular traffic handled by BalanceStrategy and link in email is handled using BNodeStrategy, so once invited beta tester comes to /joni\_beta\_program page ROUTE cookie will be set to B version and at the same moment he will be redirected to home page but this time since ROUTE cookie is set Default strategy will not be fired so customer will see B version of home page.
+
+More examples with UI capable to setup experiments at runtime can be found in examples/dynamic folder of this repository. Feel fee to use it, adopt it or completely change it...
 
   []: http://s6.postimg.org/v5hs2g029/Chameleon_Network_Diagram.png
